@@ -2,6 +2,7 @@ package tests
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"get.porter.sh/magefiles/docker"
 	"get.porter.sh/magefiles/tools"
@@ -29,6 +31,12 @@ const (
 
 var (
 	must = shx.CommandBuilder{StopOnError: true}
+
+	//go:embed kind.config.yaml
+	templateKindConfig string
+
+	//go:embed local-registry.yaml
+	templateLocalRegistry string
 )
 
 // Ensure that the test KIND cluster is up.
@@ -97,15 +105,9 @@ func CreateTestCluster() {
 	}
 
 	os.Setenv("KUBECONFIG", filepath.Join(pwd(), Kubeconfig))
-	kindCfgPath := "mage/tests/kind.config.yaml"
-	kindCfg, err := ioutil.ReadFile(kindCfgPath)
+	kindCfgTmpl, err := template.New("kind.config.yaml").Parse(templateKindConfig)
 	if err != nil {
-		mgx.Must(fmt.Errorf("error reading %s: %w", kindCfgPath, err))
-	}
-
-	kindCfgTmpl, err := template.New("kind.config.yaml").Parse(string(kindCfg))
-	if err != nil {
-		mgx.Must(fmt.Errorf("error parsing EnsureKind config template %s: %w", kindCfgPath, err))
+		mgx.Must(fmt.Errorf("error parsing EnsureKind config template: %w", err))
 	}
 
 	var kindCfgContents bytes.Buffer
@@ -126,7 +128,9 @@ func CreateTestCluster() {
 		Env("KIND_EXPERIMENTAL_DOCKER_NETWORK=" + docker.DefaultNetworkName).Run()
 
 	// Document the local registry
-	kubectl("apply", "-f", "mage/tests/local-registry.yaml").Run()
+	kubectl("apply", "-f", "-").
+		Stdin(strings.NewReader(templateLocalRegistry)).
+		Run()
 }
 
 // Delete the KIND cluster named porter.
