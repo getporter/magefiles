@@ -228,7 +228,9 @@ func releaseExists(repo string, version string) bool {
 
 func listFiles(dir string) []string {
 	files, err := ioutil.ReadDir(dir)
-	mgx.Must(fmt.Errorf("error listing files in %s: %w", dir, err))
+	if err != nil {
+		mgx.Must(fmt.Errorf("error listing files in %s: %w", dir, err))
+	}
 
 	names := make([]string, len(files))
 	for i, fi := range files {
