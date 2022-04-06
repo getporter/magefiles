@@ -3,7 +3,6 @@ package tools
 import (
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 
 const (
 	// Version of KIND to install if not already present
-	DefaultKindVersion = "v0.10.0"
+	DefaultKindVersion = "v0.12.0"
 )
 
 // Fail if the go version doesn't match the specified constraint
@@ -80,19 +79,17 @@ func EnsureGitHubClient() {
 
 // Install kind
 func EnsureKind() {
+	EnsureKindAt(DefaultKindVersion)
+}
+
+// Install kind at the specified version
+func EnsureKindAt(version string) {
 	if ok, _ := pkg.IsCommandAvailable("kind", ""); ok {
 		return
 	}
 
 	kindURL := "https://github.com/kubernetes-sigs/kind/releases/download/{{.VERSION}}/kind-{{.GOOS}}-{{.GOARCH}}"
-	mgx.Must(pkg.DownloadToGopathBin(kindURL, "kind", getKindVersion()))
-}
-
-func getKindVersion() string {
-	if version, ok := os.LookupEnv("KIND_VERSION"); ok {
-		return version
-	}
-	return DefaultKindVersion
+	mgx.Must(pkg.DownloadToGopathBin(kindURL, "kind", version))
 }
 
 // Install the latest version of porter
