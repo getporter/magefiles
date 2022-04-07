@@ -35,6 +35,7 @@ func (m Magefile) Build() {
 // Cross-compile the mixin before a release
 func (m Magefile) XBuildAll() {
 	releases.XBuildAll(m.Pkg, m.MixinName, m.BinDir)
+	releases.PrepareMixinForPublish(m.MixinName)
 }
 
 // Run unit tests
