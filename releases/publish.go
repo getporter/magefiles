@@ -160,28 +160,24 @@ func PublishPluginFeed(plugin string) {
 	publishPackageFeed("plugin", plugin)
 }
 
-func generatePackageFeed(pkgType string) {
+func generatePackageFeed(pkgType string) error {
 	pkgDir := pkgType + "s"
 	feedFile := filepath.Join(packagesRepo, pkgDir, "atom.xml")
-
-	// Try to use a local copy of porter first, otherwise use the
-	// one installed in GOAPTH/bin
-	porterPath := "bin/porter"
-	if _, err := os.Stat(porterPath); err != nil {
-		porterPath = "porter"
-		tools.EnsurePorter()
+	if err := os.MkdirAll(filepath.Dir(feedFile), 0770); err != nil {
+		return err
 	}
-	must.RunV(porterPath, "mixins", "feed", "generate", "-d", filepath.Join("bin", pkgDir), "-f", feedFile, "-t", "build/atom-template.xml")
+
+	return shx.RunE("porter", "mixins", "feed", "generate", "-d", filepath.Join("bin", pkgDir), "-f", feedFile, "-t", "build/atom-template.xml")
 }
 
 // Generate a mixin feed from any mixin versions in bin/mixins.
-func GenerateMixinFeed() {
-	generatePackageFeed("mixin")
+func GenerateMixinFeed() error {
+	return generatePackageFeed("mixin")
 }
 
 // Generate a plugin feed from any plugin versions in bin/plugins.
-func GeneratePluginFeed() {
-	generatePackageFeed("plugin")
+func GeneratePluginFeed() error {
+	return generatePackageFeed("plugin")
 }
 
 // AddFilesToRelease uploads the files in the specified directory to a GitHub release.
