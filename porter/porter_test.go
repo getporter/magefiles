@@ -1,6 +1,7 @@
 package porter
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,24 +13,28 @@ import (
 )
 
 func TestEnsurePorter(t *testing.T) {
-	check := func(wantVersion string) {
-		UseBinForPorterHome()
-		defer os.RemoveAll("bin")
-
-		EnsurePorter()
-		require.FileExists(t, filepath.Join("bin", "porter"+xplat.FileExt()), "expected the porter client to be in bin")
-		assert.FileExists(t, filepath.Join("bin", "runtimes", "porter-runtime"), "expected the porter runtime to be in bin")
-
-		ok, err := pkg.IsCommandAvailable("porter", wantVersion, "--version")
-		require.NoError(t, err)
-		assert.True(t, ok, "could not resolve the desired porter version")
+	testcases := []struct {
+		name        string
+		wantVersion string
+	}{
+		{name: "default version", wantVersion: DefaultPorterVersion},
+		{name: "custom version", wantVersion: "v1.0.0-alpha.10"},
 	}
 
-	t.Run("EnsurePorter - DefaultVersion", func(t *testing.T) {
-		check(DefaultPorterVersion)
-	})
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			tmp, err := ioutil.TempDir("", "magefiles")
+			require.NoError(t, err)
+			defer os.RemoveAll(tmp)
 
-	t.Run("EnsurePorterAt - CustomVersion", func(t *testing.T) {
-		check("v1.0.0-alpha.1")
-	})
+			UsePorterHome(tmp)
+			EnsurePorterAt(tc.wantVersion)
+			require.FileExists(t, filepath.Join(tmp, "porter"+xplat.FileExt()), "expected the porter client to be in bin")
+			assert.FileExists(t, filepath.Join(tmp, "runtimes", "porter-runtime"), "expected the porter runtime to be in bin")
+
+			ok, err := pkg.IsCommandAvailable("porter", tc.wantVersion, "--version")
+			require.NoError(t, err)
+			assert.True(t, ok, "could not resolve the desired porter version")
+		})
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/carolynvs/magex/mgx"
+	"github.com/carolynvs/magex/pkg"
 	"github.com/carolynvs/magex/pkg/downloads"
 	"github.com/carolynvs/magex/shx"
 	"github.com/carolynvs/magex/xplat"
@@ -29,7 +30,7 @@ func EnsurePorterAt(version string) {
 	os.MkdirAll(runtimesDir, 0770)
 
 	clientPath := filepath.Join(home, "porter"+xplat.FileExt())
-	if _, err := os.Stat(clientPath); os.IsNotExist(err) {
+	if clientFound, _ := pkg.IsCommandAvailable(clientPath, version, "--version"); !clientFound {
 		log.Println("Porter client not found at", clientPath)
 		log.Println("Installing porter into", home)
 		opts := downloads.DownloadOptions{
@@ -42,20 +43,18 @@ func EnsurePorterAt(version string) {
 			// we don't yet publish arm64 for porter
 			opts.UrlTemplate = "https://cdn.porter.sh/{{.VERSION}}/porter-darwin-amd64"
 		}
-		err = downloads.Download(home, opts)
-		mgx.Must(err)
+		mgx.Must(downloads.Download(home, opts))
 	}
 
 	runtimePath := filepath.Join(home, "runtimes", "porter-runtime")
-	if _, err := os.Stat(runtimePath); os.IsNotExist(err) {
+	if runtimeFound, _ := pkg.IsCommandAvailable(runtimePath, version, "--version"); !runtimeFound {
 		log.Println("Porter runtime not found at", runtimePath)
 		opts := downloads.DownloadOptions{
 			UrlTemplate: "https://cdn.porter.sh/{{.VERSION}}/porter-linux-amd64",
 			Name:        "porter-runtime",
 			Version:     version,
 		}
-		err = downloads.Download(runtimesDir, opts)
-		mgx.Must(err)
+		mgx.Must(downloads.Download(runtimesDir, opts))
 	}
 }
 
