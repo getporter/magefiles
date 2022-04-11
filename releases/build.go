@@ -85,6 +85,4 @@ func XBuildAll(pkg string, name string, binDir string) {
 	// Copy most recent build into bin/dev so that subsequent build steps can easily find it, not used for publishing
 	os.RemoveAll(filepath.Join(binDir, "dev"))
 	shx.Copy(filepath.Join(binDir, info.Version), filepath.Join(binDir, "dev"), shx.CopyRecursive)
-
-	PrepareMixinForPublish(name)
 }
