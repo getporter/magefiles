@@ -3,7 +3,6 @@ package tools
 import (
 	"fmt"
 	"log"
-	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/carolynvs/magex/pkg"
 	"github.com/carolynvs/magex/pkg/archive"
 	"github.com/carolynvs/magex/pkg/downloads"
-	"github.com/carolynvs/magex/pkg/gopath"
 )
 
 const (
@@ -86,7 +84,7 @@ func EnsureKind() {
 
 // Install kind at the specified version
 func EnsureKindAt(version string) {
-	if ok, _ := pkg.IsCommandAvailable(filepath.Join(gopath.GetGopathBin(), "kind"), ""); ok {
+	if ok, _ := pkg.IsCommandAvailable("kind", ""); ok {
 		return
 	}
 
