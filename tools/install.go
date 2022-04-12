@@ -11,10 +11,13 @@ import (
 	"github.com/carolynvs/magex/pkg"
 	"github.com/carolynvs/magex/pkg/archive"
 	"github.com/carolynvs/magex/pkg/downloads"
+	"github.com/carolynvs/magex/shx"
 )
 
-const (
-	// Version of KIND to install if not already present
+var (
+	must = shx.CommandBuilder{StopOnError: true}
+
+	// DefaultKindVersion is the default version of KinD that is installed when it's not present
 	DefaultKindVersion = "v0.12.0"
 )
 
@@ -90,10 +93,4 @@ func EnsureKindAt(version string) {
 
 	kindURL := "https://github.com/kubernetes-sigs/kind/releases/download/{{.VERSION}}/kind-{{.GOOS}}-{{.GOARCH}}"
 	mgx.Must(pkg.DownloadToGopathBin(kindURL, "kind", version))
-}
-
-// Install the latest version of porter
-func EnsurePorter() {
-	err := pkg.DownloadToGopathBin("https://cdn.porter.sh/{{.VERSION}}/porter-{{.GOOS}}-{{.GOARCH}}{{.EXT}}", "porter", "latest")
-	mgx.Must(err)
 }

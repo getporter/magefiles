@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"get.porter.sh/magefiles/porter"
 	"get.porter.sh/magefiles/releases"
-	"get.porter.sh/magefiles/tools"
 	"github.com/carolynvs/magex/mgx"
 	"github.com/carolynvs/magex/shx"
 	"github.com/carolynvs/magex/xplat"
@@ -64,6 +64,7 @@ func (m Magefile) Publish() {
 // Publish binaries to a github release
 // Requires PORTER_RELEASE_REPOSITORY to be set to github.com/USERNAME/REPO
 func (m Magefile) PublishBinaries() {
+	mg.SerialDeps(porter.UseBinForPorterHome, porter.EnsurePorter)
 	releases.PrepareMixinForPublish(m.MixinName)
 	releases.PublishMixin(m.MixinName)
 }
@@ -71,7 +72,7 @@ func (m Magefile) PublishBinaries() {
 // Publish a mixin feed
 // Requires PORTER_PACKAGES_REMOTE to be set to git@github.com:USERNAME/REPO.git
 func (m Magefile) PublishMixinFeed() {
-	mg.Deps(tools.EnsurePorter)
+	mg.SerialDeps(porter.UseBinForPorterHome, porter.EnsurePorter)
 	releases.PublishMixinFeed(m.MixinName)
 }
 
@@ -90,14 +91,7 @@ func (m Magefile) TestPublish(username string) {
 
 // Install the mixin
 func (m Magefile) Install() {
-	porterHome := os.Getenv("PORTER_HOME")
-	if porterHome == "" {
-		home, _ := os.UserHomeDir()
-		porterHome = filepath.Join(home, ".porter")
-	}
-	if _, err := os.Stat(porterHome); err != nil {
-		panic("Could not find a Porter installation. Make sure that Porter is installed and set PORTER_HOME if you are using a non-standard installation path")
-	}
+	porterHome := porter.GetPorterHome()
 	fmt.Printf("Installing the %s mixin into %s\n", m.MixinName, porterHome)
 
 	os.MkdirAll(filepath.Join(porterHome, "mixins", m.MixinName, "runtimes"), 0770)

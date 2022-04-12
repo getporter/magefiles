@@ -3,8 +3,13 @@ package releases
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"get.porter.sh/magefiles/porter"
+	"github.com/carolynvs/magex/shx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -47,4 +52,34 @@ func TestAppendDataPath(t *testing.T) {
 
 	output := AppendDataPath(data, dataPath)
 	require.Equal(t, expected, output)
+}
+
+func TestGenerateMixinFeed(t *testing.T) {
+	tmp, err := ioutil.TempDir("", "magefiles")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmp)
+
+	// Install porter in our test bin
+	tmpBin := filepath.Join(tmp, "bin")
+	require.NoError(t, shx.Copy("../bin", tmpBin, shx.CopyRecursive), "failed to copy the porter bin into the test directory")
+	porter.UsePorterHome(tmpBin)
+
+	// Copy our atom feed template
+	buildDir := filepath.Join(tmp, "build")
+	require.NoError(t, os.Mkdir(buildDir, 0770))
+	require.NoError(t, shx.Copy("testdata/atom-template.xml", buildDir))
+
+	// Make a fake mixin release
+	require.NoError(t, shx.Copy("testdata/mixins", tmpBin, shx.CopyRecursive))
+
+	// Change into the tmp directory since the publish logic uses relative file paths
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	require.NoError(t, os.Chdir(tmp))
+	defer os.Chdir(origDir)
+
+	err = GenerateMixinFeed()
+	require.NoError(t, err)
+
+	assert.FileExists(t, filepath.Join(tmpBin, "mixins/.packages/mixins/atom.xml"), "expected a mixin feed")
 }
