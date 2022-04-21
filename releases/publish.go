@@ -183,39 +183,43 @@ func GeneratePluginFeed() error {
 // AddFilesToRelease uploads the files in the specified directory to a GitHub release.
 // If the release does not exist already, it will be created with empty release notes.
 func AddFilesToRelease(repo string, tag string, dir string) {
+	files, err := getReleaseAssets(dir)
+	mgx.Must(err)
+
+	if !releaseExists(repo, tag) {
+		// Mark canary releases as a draft
+		draft := ""
+		if strings.HasPrefix(tag, "canary") {
+			draft = "-p"
+		}
+
+		// Create the GH release
+		must.RunV("gh", "release", "create", "-R", repo, tag, "--notes=", draft)
+	}
+
+	// Upload the release assets and overwrite existing assets
+	must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
+		Args(files...).RunV()
+}
+
+func getReleaseAssets(dir string) ([]string, error) {
 	files := listFiles(dir)
 
-	checksumFiles := make([]string, len(files))
-	for i, file := range files {
+	var releaseFiles []string
+	for _, file := range files {
 		checksumFile, added := AddChecksumExt(file)
 		if !added {
-			checksumFiles[i] = file
+			// This is a checksum file, skip
 			continue
 		}
 
 		err := createChecksumFile(file, checksumFile)
 		if err != nil {
-			mgx.Must(fmt.Errorf("failed to generate checksum file for asset %s: %w", file, err))
+			return nil, fmt.Errorf("failed to generate checksum file for asset %s: %w", file, err)
 		}
-		checksumFiles[i] = checksumFile
-
+		releaseFiles = append(releaseFiles, file, checksumFile)
 	}
-
-	files = append(files, checksumFiles...)
-
-	// Mark canary releases as a draft
-	draft := ""
-	if strings.HasPrefix(tag, "canary") {
-		draft = "-p"
-	}
-
-	if releaseExists(repo, tag) {
-		must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
-			Args(files...).RunV()
-	} else {
-		must.Command("gh", "release", "create", "-R", repo, "-t", tag, "--notes=", draft, tag).
-			CollapseArgs().Args(files...).RunV()
-	}
+	return releaseFiles, nil
 }
 
 func releaseExists(repo string, version string) bool {
@@ -247,7 +251,7 @@ func AddChecksumExt(path string) (string, bool) {
 func GenerateChecksum(data io.Reader, path string) (string, error) {
 	hash := sha256.New()
 	if _, err := io.Copy(hash, data); err != nil {
-		return "", err
+		return "", fmt.Errorf("error generating checksum for %s: %w", path, err)
 	}
 	sum := hash.Sum(nil)
 
@@ -263,7 +267,7 @@ func AppendDataPath(data []byte, path string) string {
 func createChecksumFile(contentPath string, checksumFile string) error {
 	data, err := os.Open(contentPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading release asset %s: %w", contentPath, err)
 	}
 	defer data.Close()
 
@@ -274,10 +278,11 @@ func createChecksumFile(contentPath string, checksumFile string) error {
 
 	f, err := os.Create(checksumFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("error creating checksum file %s: %w", checksumFile, err)
 	}
+	defer f.Close()
 	if _, err := f.WriteString(sum); err != nil {
-		return err
+		return fmt.Errorf("error writing checksum file %s: %w", checksumFile, err)
 	}
 
 	return nil

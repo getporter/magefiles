@@ -3,6 +3,7 @@ package releases
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"github.com/carolynvs/magex/mgx"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,6 +14,33 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestGetReleaseAssets(t *testing.T) {
+	tmp, err := ioutil.TempDir("", "magefiles")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmp)
+
+	mgx.Must(shx.Copy("testdata/mixins/v1.2.3/*", tmp, shx.CopyRecursive))
+
+	gotFiles, err := getReleaseAssets(tmp)
+	require.NoError(t, err)
+
+	wantFiles := []string{
+		filepath.Join(tmp, "mymixin-darwin-amd64"),
+		filepath.Join(tmp, "mymixin-darwin-amd64.sha256sum"),
+		filepath.Join(tmp, "mymixin-linux-amd64"),
+		filepath.Join(tmp, "mymixin-linux-amd64.sha256sum"),
+		filepath.Join(tmp, "mymixin-windows-amd64.exe"),
+		filepath.Join(tmp, "mymixin-windows-amd64.exe.sha256sum"),
+	}
+	assert.Equal(t, wantFiles, gotFiles)
+
+	// Read the existing checksum file with stale contents, and ensure it was updated
+	gotChecksum, err := ioutil.ReadFile(filepath.Join(tmp, "mymixin-darwin-amd64.sha256sum"))
+	require.NoError(t, err)
+	wantCheckSum := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  mymixin-darwin-amd64"
+	assert.Equal(t, wantCheckSum, string(gotChecksum))
+}
 
 func TestAddChecksumExt(t *testing.T) {
 	tests := []struct {
