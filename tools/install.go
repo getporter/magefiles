@@ -76,6 +76,12 @@ func EnsureGitHubClient() {
 		TargetFileTemplate: target,
 	}
 
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		// github doesn't publish arm64 binaries for mac, so fallback to the amd64 binary
+		opts.UrlTemplate = "https://github.com/cli/cli/releases/download/v{{.VERSION}}/gh_{{.VERSION}}_{{.GOOS}}_amd64{{.EXT}}"
+		opts.TargetFileTemplate = "gh_{{.VERSION}}_{{.GOOS}}_amd64/bin/gh{{.EXT}}"
+	}
+
 	err := archive.DownloadToGopathBin(opts)
 	mgx.Must(err)
 }
