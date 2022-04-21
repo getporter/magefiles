@@ -194,7 +194,7 @@ func AddFilesToRelease(repo string, tag string, dir string) {
 		}
 
 		// Create the GH release
-		must.RunV("gh", "release", "create", "-R", repo, tag, "--notes=", draft)
+		must.Command("gh", "release", "create", "-R", repo, tag, "--notes=", draft).CollapseArgs().RunV()
 	}
 
 	// Upload the release assets and overwrite existing assets
