@@ -2,6 +2,9 @@ name: Test
 
 on: [push,pull_request]
 
+env:
+  MAGEFILE_VERBOSE: true
+
 jobs:
   test:
     runs-on: ubuntu-latest

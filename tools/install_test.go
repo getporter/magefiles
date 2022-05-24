@@ -1,6 +1,9 @@
 package tools_test
 
 import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"get.porter.sh/magefiles/tools"
@@ -12,9 +15,17 @@ import (
 )
 
 func TestEnsureKind(t *testing.T) {
-	tools.EnsureKind()
+	tmp, err := ioutil.TempDir("", "magefiles")
+	require.NoError(t, err, "Error creating temp directory")
+	defer os.RemoveAll(tmp)
+
+	os.Setenv("GOPATH", tmp)
+	tools.EnsureKindAt(tools.DefaultKindVersion)
 	xplat.PrependPath(gopath.GetGopathBin())
+
+	require.FileExists(t, filepath.Join(tmp, "bin", "kind"+xplat.FileExt()))
+
 	found, err := pkg.IsCommandAvailable("kind", tools.DefaultKindVersion, "--version")
-	require.NoError(t, err)
-	assert.True(t, found)
+	require.NoError(t, err, "IsCommandAvailable failed")
+	assert.True(t, found, "kind was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
 }

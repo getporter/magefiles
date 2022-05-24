@@ -3,13 +3,13 @@ package releases
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/carolynvs/magex/mgx"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"get.porter.sh/magefiles/porter"
+	"github.com/carolynvs/magex/mgx"
 	"github.com/carolynvs/magex/shx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -110,4 +110,30 @@ func TestGenerateMixinFeed(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.FileExists(t, filepath.Join(tmpBin, "mixins/.packages/mixins/atom.xml"), "expected a mixin feed")
+}
+
+func TestGeneratePluginFeed_PorterNotInstalled(t *testing.T) {
+	tmp, err := ioutil.TempDir("", "magefiles")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmp)
+
+	// DO NOT INSTALL PORTER INTO THE BIN
+	tmpBin := filepath.Join(tmp, "bin")
+
+	// Copy our atom feed template
+	buildDir := filepath.Join(tmp, "build")
+	require.NoError(t, os.Mkdir(buildDir, 0770))
+	require.NoError(t, shx.Copy("testdata/atom-template.xml", buildDir))
+
+	// Make a fake mixin release
+	require.NoError(t, shx.Copy("testdata/mixins", tmpBin, shx.CopyRecursive))
+
+	// Change into the tmp directory since the publish logic uses relative file paths
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	require.NoError(t, os.Chdir(tmp))
+	defer os.Chdir(origDir)
+
+	err = GeneratePluginFeed()
+	require.Errorf(t, err, "farts", "GeneratePluginFeed should fail when porter is not in the bin")
 }

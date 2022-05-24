@@ -93,7 +93,7 @@ func EnsureKind() {
 
 // Install kind at the specified version
 func EnsureKindAt(version string) {
-	if ok, _ := pkg.IsCommandAvailable("kind", ""); ok {
+	if ok, _ := pkg.IsCommandAvailable("kind", version); ok {
 		return
 	}
 
