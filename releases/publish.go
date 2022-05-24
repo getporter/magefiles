@@ -143,7 +143,7 @@ func publishPackageFeed(pkgType string, name string) {
 	must.RunV("git", "clone", "--depth=1", remote, packagesRepo)
 	configureGitBotIn(packagesRepo)
 
-	generatePackageFeed(pkgType)
+	mgx.Must(generatePackageFeed(pkgType))
 
 	must.Command("git", "-c", "user.name='Porter Bot'", "-c", "user.email=bot@porter.sh", "commit", "--signoff", "-am", fmt.Sprintf("Add %s@%s to %s feed", name, info.Version, pkgType)).
 		In(packagesRepo).RunV()
@@ -167,7 +167,7 @@ func generatePackageFeed(pkgType string) error {
 		return err
 	}
 
-	return shx.RunE("porter", "mixins", "feed", "generate", "-d", filepath.Join("bin", pkgDir), "-f", feedFile, "-t", "build/atom-template.xml")
+	return shx.RunE("bin/porter", "mixins", "feed", "generate", "-d", filepath.Join("bin", pkgDir), "-f", feedFile, "-t", "build/atom-template.xml")
 }
 
 // Generate a mixin feed from any mixin versions in bin/mixins.
