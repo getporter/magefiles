@@ -29,3 +29,19 @@ func TestEnsureKind(t *testing.T) {
 	require.NoError(t, err, "IsCommandAvailable failed")
 	assert.True(t, found, "kind was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
 }
+
+func TestEnsureStaticCheck(t *testing.T) {
+	tmp, err := ioutil.TempDir("", "magefiles")
+	require.NoError(t, err, "Error creating temp directory")
+	defer os.RemoveAll(tmp)
+
+	os.Setenv("GOPATH", tmp)
+	tools.EnsureStaticCheck()
+	xplat.PrependPath(gopath.GetGopathBin())
+
+	require.FileExists(t, filepath.Join(tmp, "bin", "staticcheck"+xplat.FileExt()))
+
+	found, err := pkg.IsCommandAvailable("staticcheck", tools.DefaultStaticCheckVersion, "--version")
+	require.NoError(t, err, "IsCommandAvailable failed")
+	assert.True(t, found, "staticcheck was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
+}
