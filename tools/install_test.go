@@ -19,6 +19,9 @@ func TestEnsureKind(t *testing.T) {
 	require.NoError(t, err, "Error creating temp directory")
 	defer os.RemoveAll(tmp)
 
+	oldGoPath := os.Getenv("GOPATH")
+	defer os.Setenv("GOPATH", oldGoPath)
+
 	os.Setenv("GOPATH", tmp)
 	tools.EnsureKindAt(tools.DefaultKindVersion)
 	xplat.PrependPath(gopath.GetGopathBin())
@@ -34,6 +37,9 @@ func TestEnsureStaticCheck(t *testing.T) {
 	tmp, err := ioutil.TempDir("", "magefiles")
 	require.NoError(t, err, "Error creating temp directory")
 	defer os.RemoveAll(tmp)
+
+	oldGoPath := os.Getenv("GOPATH")
+	defer os.Setenv("GOPATH", oldGoPath)
 
 	os.Setenv("GOPATH", tmp)
 	tools.EnsureStaticCheck()
