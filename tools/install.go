@@ -19,6 +19,9 @@ var (
 
 	// DefaultKindVersion is the default version of KinD that is installed when it's not present
 	DefaultKindVersion = "v0.12.0"
+
+	// DefaultStaticCheckVersion is the default version of StaticCheck that is installed when it's not present
+	DefaultStaticCheckVersion = "2022.1.2"
 )
 
 // Fail if the go version doesn't match the specified constraint
@@ -99,4 +102,32 @@ func EnsureKindAt(version string) {
 
 	kindURL := "https://github.com/kubernetes-sigs/kind/releases/download/{{.VERSION}}/kind-{{.GOOS}}-{{.GOARCH}}"
 	mgx.Must(pkg.DownloadToGopathBin(kindURL, "kind", version))
+}
+
+// Install Staticcheck
+func EnsureStaticCheck() {
+	EnsureStaticCheckAt(DefaultStaticCheckVersion)
+}
+
+// Install Staticcheck at the specified version
+func EnsureStaticCheckAt(version string) {
+	if ok, _ := pkg.IsCommandAvailable("staticcheck", version); ok {
+		return
+	}
+
+	opts := archive.DownloadArchiveOptions{
+		DownloadOptions: downloads.DownloadOptions{
+			UrlTemplate: "https://github.com/dominikh/go-tools/releases/download/{{.VERSION}}/staticcheck_{{.GOOS}}_{{.GOARCH}}.tar.gz",
+			Name:        "staticcheck",
+			Version:     version,
+		},
+		ArchiveExtensions: map[string]string{
+			"linux":   ".tar.gz",
+			"darwin":  ".tar.gz",
+			"windows": ".tar.gz",
+		},
+		TargetFileTemplate: "staticcheck/staticcheck{{.EXT}}",
+	}
+	err := archive.DownloadToGopathBin(opts)
+	mgx.Must(err)
 }
