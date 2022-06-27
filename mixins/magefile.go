@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"get.porter.sh/magefiles/ci"
 	"get.porter.sh/magefiles/porter"
 	"get.porter.sh/magefiles/releases"
 	"github.com/carolynvs/magex/mgx"
@@ -19,12 +20,17 @@ type Magefile struct {
 	BinDir    string
 }
 
-// Create a magefile helper for a mixin
+// NewMagefile creates a magefile helper for a mixin
 func NewMagefile(pkg, mixinName, binDir string) Magefile {
 	return Magefile{Pkg: pkg, MixinName: mixinName, BinDir: binDir}
 }
 
 var must = shx.CommandBuilder{StopOnError: true}
+
+// ConfigureAgent sets up a CI worker to use Go and mage.
+func (m Magefile) ConfigureAgent() {
+	mgx.Must(ci.ConfigureAgent())
+}
 
 // Build the mixin
 func (m Magefile) Build() {
@@ -32,13 +38,13 @@ func (m Magefile) Build() {
 	releases.BuildAll(m.Pkg, m.MixinName, m.BinDir)
 }
 
-// Cross-compile the mixin before a release
+// XBuildAll cross-compiles the mixin before a release
 func (m Magefile) XBuildAll() {
 	releases.XBuildAll(m.Pkg, m.MixinName, m.BinDir)
 	releases.PrepareMixinForPublish(m.MixinName)
 }
 
-// Run unit tests
+// TestUnit runs unit tests
 func (m Magefile) TestUnit() {
 	v := ""
 	if mg.Verbose() {
@@ -47,7 +53,7 @@ func (m Magefile) TestUnit() {
 	must.Command("go", "test", v, "./pkg/...").CollapseArgs().RunV()
 }
 
-// Run all tests
+// Test runs a full suite of tests
 func (m Magefile) Test() {
 	m.TestUnit()
 
@@ -61,7 +67,7 @@ func (m Magefile) Publish() {
 	mg.SerialDeps(m.PublishBinaries, m.PublishMixinFeed)
 }
 
-// Publish binaries to a github release
+// PublishBinaries uploads cross-compiled binaries to a GitHub release
 // Requires PORTER_RELEASE_REPOSITORY to be set to github.com/USERNAME/REPO
 func (m Magefile) PublishBinaries() {
 	mg.SerialDeps(porter.UseBinForPorterHome, porter.EnsurePorter)
@@ -76,8 +82,9 @@ func (m Magefile) PublishMixinFeed() {
 	releases.PublishMixinFeed(m.MixinName)
 }
 
-// Test out publish locally, with your github forks
-// Assumes that you forked and kept the repository name unchanged.
+// TestPublish uploads release artifacts to a fork of the mixin's repo.
+// If your mixin is official hosted in a repository under your username, you will need to manually
+// override PORTER_RELEASE_REPOSITORY and PORTER_PACKAGES_REMOTE to test out publishing safely.
 func (m Magefile) TestPublish(username string) {
 	mixinRepo := fmt.Sprintf("github.com/%s/%s-mixin", username, m.MixinName)
 	pkgRepo := fmt.Sprintf("https://github.com/%s/packages.git", username)
@@ -99,7 +106,7 @@ func (m Magefile) Install() {
 	mgx.Must(shx.Copy(filepath.Join(m.BinDir, "runtimes", m.MixinName+"-runtime"+xplat.FileExt()), filepath.Join(porterHome, "mixins", m.MixinName, "runtimes")))
 }
 
-// Remove generated build files
+// Clean removes generated build files
 func (m Magefile) Clean() {
 	os.RemoveAll("bin")
 }
