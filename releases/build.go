@@ -22,6 +22,13 @@ func getLDFLAGS(pkg string) string {
 	return fmt.Sprintf("-w -X %s/pkg.Version=%s -X %s/pkg.Commit=%s", pkg, info.Version, pkg, info.Commit)
 }
 
+func getPluginLDFLAGS() string {
+	info := LoadMetadata()
+
+	pkg := "get.porter.sh/porter/pkg/plugins/pluginbuilder"
+	return fmt.Sprintf("-w -X %s.Version=%s -X %s.Commit=%s", pkg, info.Version, pkg, info.Commit)
+}
+
 func build(pkgName, cmd, outPath, goos, goarch string) error {
 	ldflags := getLDFLAGS(pkgName)
 
@@ -49,6 +56,20 @@ func BuildRuntime(pkg string, name string, binDir string) error {
 func BuildClient(pkg string, name string, binDir string) error {
 	outPath := filepath.Join(binDir, name)
 	return build(pkg, name, outPath, runtime.GOOS, runtime.GOARCH)
+}
+
+func BuildPlugin(name string) error {
+	srcPath := "."
+	goos := runtime.GOOS
+	goarch := runtime.GOARCH
+	ldflags := getPluginLDFLAGS()
+
+	outPath := filepath.Join("bin/plugins/", name, name, fileExt(goos))
+	os.MkdirAll(filepath.Dir(outPath), 0770)
+
+	return shx.Command("go", "build", "-ldflags", ldflags, "-o", outPath, srcPath).
+		Env("CGO_ENABLED=0", "GO111MODULE=on", "GOOS="+goos, "GOARCH="+goarch).
+		RunV()
 }
 
 func BuildAll(pkg string, name string, binDir string) error {
