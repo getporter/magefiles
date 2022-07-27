@@ -18,9 +18,13 @@ var (
 	DefaultPorterVersion = "v1.0.0-alpha.19"
 )
 
-// Install the default version of porter
+// Install the default version of porter, if porter isn't already installed
 func EnsurePorter() {
-	EnsurePorterAt(DefaultPorterVersion)
+	home := GetPorterHome()
+	clientPath := filepath.Join(home, "porter"+xplat.FileExt())
+	if ok, _ := pkg.IsCommandAvailable(clientPath, "--version", ""); !ok {
+		EnsurePorterAt(DefaultPorterVersion)
+	}
 }
 
 // Install the specified version of porter

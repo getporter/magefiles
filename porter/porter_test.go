@@ -13,6 +13,24 @@ import (
 )
 
 func TestEnsurePorter(t *testing.T) {
+	tmp, err := ioutil.TempDir("", "magefiles")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmp)
+
+	const wantVersion = "v1.0.0-beta.1"
+	UsePorterHome(tmp)
+	EnsurePorterAt(wantVersion)
+	EnsurePorter() // This should not change the installed version in bin!
+
+	require.FileExists(t, filepath.Join(tmp, "porter"+xplat.FileExt()), "expected the porter client to be in bin")
+	assert.FileExists(t, filepath.Join(tmp, "runtimes", "porter-runtime"), "expected the porter runtime to be in bin")
+
+	ok, err := pkg.IsCommandAvailable("porter", "--version", wantVersion)
+	require.NoError(t, err)
+	assert.True(t, ok, "could not resolve the desired porter version")
+}
+
+func TestEnsurePorterAt(t *testing.T) {
 	testcases := []struct {
 		name        string
 		wantVersion string
