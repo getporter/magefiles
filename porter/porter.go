@@ -30,7 +30,7 @@ func EnsurePorterAt(version string) {
 	os.MkdirAll(runtimesDir, 0770)
 
 	clientPath := filepath.Join(home, "porter"+xplat.FileExt())
-	if clientFound, _ := pkg.IsCommandAvailable(clientPath, version, "--version"); !clientFound {
+	if clientFound, _ := pkg.IsCommandAvailable(clientPath, "--version", version); !clientFound {
 		log.Println("Porter client not found at", clientPath)
 		log.Println("Installing porter into", home)
 		opts := downloads.DownloadOptions{
@@ -47,7 +47,7 @@ func EnsurePorterAt(version string) {
 	}
 
 	runtimePath := filepath.Join(home, "runtimes", "porter-runtime")
-	if runtimeFound, _ := pkg.IsCommandAvailable(runtimePath, version, "--version"); !runtimeFound {
+	if runtimeFound, _ := pkg.IsCommandAvailable(runtimePath, "--version", version); !runtimeFound {
 		log.Println("Porter runtime not found at", runtimePath)
 		opts := downloads.DownloadOptions{
 			UrlTemplate: "https://cdn.porter.sh/{{.VERSION}}/porter-linux-amd64",

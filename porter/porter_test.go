@@ -32,7 +32,7 @@ func TestEnsurePorter(t *testing.T) {
 			require.FileExists(t, filepath.Join(tmp, "porter"+xplat.FileExt()), "expected the porter client to be in bin")
 			assert.FileExists(t, filepath.Join(tmp, "runtimes", "porter-runtime"), "expected the porter runtime to be in bin")
 
-			ok, err := pkg.IsCommandAvailable("porter", tc.wantVersion, "--version")
+			ok, err := pkg.IsCommandAvailable("porter", "--version", tc.wantVersion)
 			require.NoError(t, err)
 			assert.True(t, ok, "could not resolve the desired porter version")
 		})

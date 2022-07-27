@@ -52,7 +52,7 @@ func EnsureMage() error {
 
 // Install gh
 func EnsureGitHubClient() {
-	if ok, _ := pkg.IsCommandAvailable("gh", ""); ok {
+	if ok, _ := pkg.IsCommandAvailable("gh", "--version", ""); ok {
 		return
 	}
 
@@ -96,7 +96,7 @@ func EnsureKind() {
 
 // Install kind at the specified version
 func EnsureKindAt(version string) {
-	if ok, _ := pkg.IsCommandAvailable("kind", version); ok {
+	if ok, _ := pkg.IsCommandAvailable("kind", "--version", version); ok {
 		return
 	}
 
@@ -111,7 +111,7 @@ func EnsureStaticCheck() {
 
 // Install Staticcheck at the specified version
 func EnsureStaticCheckAt(version string) {
-	if ok, _ := pkg.IsCommandAvailable("staticcheck", version); ok {
+	if ok, _ := pkg.IsCommandAvailable("staticcheck", "--version", version); ok {
 		return
 	}
 
