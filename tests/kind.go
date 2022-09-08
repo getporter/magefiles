@@ -147,7 +147,7 @@ func kubectl(args ...string) shx.PreparedCommand {
 
 // Ensure kubectl is installed.
 func EnsureKubectl() {
-	if ok, _ := pkg.IsCommandAvailable("kubectl", ""); ok {
+	if ok, _ := pkg.IsCommandAvailable("kubectl", "version", ""); ok {
 		return
 	}
 
