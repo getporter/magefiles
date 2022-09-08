@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/carolynvs/magex v0.8.2-0.20220725154022-8303d8738552
+	github.com/carolynvs/magex v0.9.0
 	github.com/magefile/mage v1.13.0
 	github.com/stretchr/testify v1.7.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
