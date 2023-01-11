@@ -33,9 +33,14 @@ func EnsurePorterAt(version string) {
 	runtimesDir := filepath.Join(home, "runtimes")
 	os.MkdirAll(runtimesDir, 0770)
 
+	var forceDownloadRuntime bool
+
 	clientPath := filepath.Join(home, "porter"+xplat.FileExt())
 	if clientFound, _ := pkg.IsCommandAvailable(clientPath, "--version", version); !clientFound {
-		log.Println("Porter client not found at", clientPath)
+		// When we download a new client, always download a new runtime
+		forceDownloadRuntime = true
+
+		log.Printf("Porter %s not found at %s\n", version, clientPath)
 		log.Println("Installing porter into", home)
 		opts := downloads.DownloadOptions{
 			UrlTemplate: "https://cdn.porter.sh/{{.VERSION}}/porter-{{.GOOS}}-{{.GOARCH}}{{.EXT}}",
@@ -50,9 +55,11 @@ func EnsurePorterAt(version string) {
 		mgx.Must(downloads.Download(home, opts))
 	}
 
+	// Only check if the runtime file _exists_ but don't try to check the version
+	// The binary isn't runnable in all cases because it will always be a linux binary, and the client could be windows or mac
+	// So we can't really check the version here...
 	runtimePath := filepath.Join(home, "runtimes", "porter-runtime")
-	if runtimeFound, _ := pkg.IsCommandAvailable(runtimePath, "--version", version); !runtimeFound {
-		log.Println("Porter runtime not found at", runtimePath)
+	if _, err := os.Stat(runtimePath); forceDownloadRuntime || os.IsNotExist(err) {
 		opts := downloads.DownloadOptions{
 			UrlTemplate: "https://cdn.porter.sh/{{.VERSION}}/porter-linux-amd64",
 			Name:        "porter-runtime",
