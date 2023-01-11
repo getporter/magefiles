@@ -41,8 +41,7 @@ func TestEnsurePorterAt(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			tmp, err := os.MkdirTemp("", "magefiles")
-			require.NoError(t, err)
+			tmp := t.TempDir()
 
 			UsePorterHome(tmp)
 			EnsurePorterAt(tc.wantVersion)
@@ -57,8 +56,7 @@ func TestEnsurePorterAt(t *testing.T) {
 
 	// when the runtime binary already exists, leave it
 	t.Run("runtime binary only downloaded when client is stale", func(t *testing.T) {
-		tmp, err := os.MkdirTemp("", "magefiles")
-		require.NoError(t, err)
+		tmp := t.TempDir()
 
 		UsePorterHome(tmp)
 		EnsurePorter()
