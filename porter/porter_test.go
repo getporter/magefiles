@@ -41,9 +41,7 @@ func TestEnsurePorterAt(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			tmp, err := ioutil.TempDir("", "magefiles")
-			require.NoError(t, err)
-			defer os.RemoveAll(tmp)
+			tmp := t.TempDir()
 
 			UsePorterHome(tmp)
 			EnsurePorterAt(tc.wantVersion)
@@ -55,4 +53,37 @@ func TestEnsurePorterAt(t *testing.T) {
 			assert.True(t, ok, "could not resolve the desired porter version")
 		})
 	}
+
+	// when the runtime binary already exists, leave it
+	t.Run("runtime binary only downloaded when client is stale", func(t *testing.T) {
+		tmp := t.TempDir()
+
+		UsePorterHome(tmp)
+		EnsurePorter()
+
+		porterPath := filepath.Join(tmp, "porter"+xplat.FileExt())
+		runtimePath := filepath.Join(tmp, "runtimes", "porter-runtime")
+		origPorterStat, err := os.Stat(porterPath)
+		require.NoError(t, err, "failed to stat the porter binary")
+		origRuntimeStat, err := os.Stat(runtimePath)
+		require.NoError(t, err, "failed to stat the porter-runtime binary")
+
+		// Nothing should be downloaded
+		EnsurePorterAt(DefaultPorterVersion)
+		newPorterStat, err := os.Stat(porterPath)
+		require.NoError(t, err, "failed to stat the porter binary")
+		require.Equal(t, origPorterStat.ModTime(), newPorterStat.ModTime(), "expected the porter binary to not be re-downloaded")
+		newRuntimeStat, err := os.Stat(runtimePath)
+		require.NoError(t, err, "failed to stat the porter-runtime binary")
+		require.Equal(t, origRuntimeStat.ModTime(), newRuntimeStat.ModTime(), "expected the porter-runtime binary to not be re-downloaded")
+
+		// Both should be re-downloaded
+		EnsurePorterAt("v1.0.0-rc.1")
+		newPorterStat, err = os.Stat(porterPath)
+		require.NoError(t, err, "failed to stat the porter binary")
+		require.Less(t, origPorterStat.ModTime(), newPorterStat.ModTime(), "expected the porter binary to be re-downloaded")
+		newRuntimeStat, err = os.Stat(runtimePath)
+		require.NoError(t, err, "failed to stat the porter-runtime binary")
+		require.Less(t, origRuntimeStat.ModTime(), newRuntimeStat.ModTime(), "expected the porter-runtime binary to be re-downloaded")
+	})
 }
