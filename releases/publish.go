@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -70,7 +69,7 @@ func configureGitBotIn(dir string) {
 	contents := `#!/bin/sh
 exec echo "$GITHUB_TOKEN"
 `
-	mgx.Must(ioutil.WriteFile(askpass, []byte(contents), 0770))
+	mgx.Must(os.WriteFile(askpass, []byte(contents), 0770))
 
 	pwd, _ := os.Getwd()
 	script := filepath.Join(pwd, askpass)
@@ -227,7 +226,7 @@ func releaseExists(repo string, version string) bool {
 }
 
 func listFiles(dir string) []string {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		mgx.Must(fmt.Errorf("error listing files in %s: %w", dir, err))
 	}
