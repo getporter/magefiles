@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	runtimeArch         = "amd64"
-	runtimePlatform     = "linux"
-	supportedClientGOOS = []string{"linux", "darwin", "windows"}
+	runtimeArch           = "amd64"
+	runtimePlatform       = "linux"
+	supportedClientGOOS   = []string{"linux", "darwin", "windows"}
+	supportedClientGOARCH = []string{"amd64", "arm64"}
 )
 
 func getLDFLAGS(pkg string) string {
@@ -73,9 +74,12 @@ func XBuildAll(pkg string, name string, binDir string) {
 	var g errgroup.Group
 	for _, goos := range supportedClientGOOS {
 		goos := goos
-		g.Go(func() error {
-			return XBuild(pkg, name, binDir, goos, "amd64")
-		})
+		for _, goarch := range supportedClientGOARCH {
+			goarch := goarch
+			g.Go(func() error {
+				return XBuild(pkg, name, binDir, goos, goarch)
+			})
+		}
 	}
 
 	mgx.Must(g.Wait())
