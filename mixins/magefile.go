@@ -35,7 +35,7 @@ func (m Magefile) ConfigureAgent() {
 // Build the mixin
 func (m Magefile) Build() {
 	must.RunV("go", "mod", "tidy")
-	releases.BuildAll(m.Pkg, m.MixinName, m.BinDir)
+	mgx.Must(releases.BuildAll(m.Pkg, m.MixinName, m.BinDir))
 }
 
 // XBuildAll cross-compiles the mixin before a release
