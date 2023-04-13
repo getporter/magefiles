@@ -102,14 +102,14 @@ func publishPackage(pkgType string, name string) {
 		must.RunV("git", "tag", info.Permalink, info.Version+"^{}", "-f")
 		must.RunV("git", "push", "-f", remote, info.Permalink)
 
-		AddFilesToRelease(repo, info, info.Permalink, versionDir)
+		AddFilesToRelease(repo, info.Permalink, versionDir)
 	} else {
 		fmt.Println("Skipping publish package for permalink", info.Permalink)
 	}
 
 	// Create GitHub release for the exact version (v1.2.3) and attach assets
 	if info.IsTaggedRelease {
-		AddFilesToRelease(repo, info, info.Version, versionDir)
+		AddFilesToRelease(repo, info.Version, versionDir)
 	}
 }
 
@@ -181,7 +181,7 @@ func GeneratePluginFeed() error {
 
 // AddFilesToRelease uploads the files in the specified directory to a GitHub release.
 // If the release does not exist already, it will be created with empty release notes.
-func AddFilesToRelease(repo string, info GitMetadata, tag string, dir string) {
+func AddFilesToRelease(repo string, tag string, dir string) {
 	files, err := getReleaseAssets(dir)
 	mgx.Must(err)
 
