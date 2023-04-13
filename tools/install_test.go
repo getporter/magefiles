@@ -49,7 +49,7 @@ func TestEnsureStaticCheck(t *testing.T) {
 	oldPath := os.Getenv("PATH")
 	defer os.Setenv("PATH", oldPath)
 	os.Setenv("PATH", tmp)
-	
+
 	tools.EnsureStaticCheck()
 	xplat.PrependPath(gopath.GetGopathBin())
 
@@ -58,4 +58,27 @@ func TestEnsureStaticCheck(t *testing.T) {
 	found, err := pkg.IsCommandAvailable("staticcheck", "--version", tools.DefaultStaticCheckVersion)
 	require.NoError(t, err, "IsCommandAvailable failed")
 	assert.True(t, found, "staticcheck was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
+}
+
+func TestEnsureGitHubClient(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "magefiles")
+	require.NoError(t, err, "Error creating temp directory")
+	defer os.RemoveAll(tmp)
+
+	oldGoPath := os.Getenv("GOPATH")
+	defer os.Setenv("GOPATH", oldGoPath)
+	os.Setenv("GOPATH", tmp)
+
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+	os.Setenv("PATH", tmp)
+
+	tools.EnsureGitHubClient()
+	xplat.PrependPath(gopath.GetGopathBin())
+
+	require.FileExists(t, filepath.Join(tmp, "bin", "gh"+xplat.FileExt()))
+
+	found, err := pkg.IsCommandAvailable("gh", "--version", tools.DefaultGitHubClientVersion)
+	require.NoError(t, err, "IsCommandAvailable failed")
+	assert.True(t, found, "gh was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
 }

@@ -186,19 +186,27 @@ func AddFilesToRelease(repo string, tag string, dir string) {
 	mgx.Must(err)
 
 	if !releaseExists(repo, tag) {
-		// Mark canary releases as a draft
+		// Mark canary releases as a pre-release
 		draft := ""
 		if strings.HasPrefix(tag, "canary") {
 			draft = "-p"
 		}
 
-		// Create the GH release
-		must.Command("gh", "release", "create", "-R", repo, tag, "--notes=", draft).CollapseArgs().RunV()
-	}
+		// Create the GH release and upload the assets at the same time
+		// The release stays in draft until all assets are uploaded
+		must.Command("gh", "release", "create", "-R", repo, tag, "--generate-notes", draft).
+			Args(files...).CollapseArgs().RunV()
+	} else {
+		// We must have failed when creating the release last time, and someone kicked the build to retry
+		// Get the release back into the desired state (see gh release create above for what we want to look like)
 
-	// Upload the release assets and overwrite existing assets
-	must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
-		Args(files...).RunV()
+		// Upload the release assets and overwrite existing assets
+		must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
+			Args(files...).RunV()
+
+		// The release may still be stuck in draft from a previous failed upload while creating the release, make sure draft is cleared
+		must.Command("gh", "release", "edit", "--draft=false", "-R", repo, tag).RunV()
+	}
 }
 
 func getReleaseAssets(dir string) ([]string, error) {
