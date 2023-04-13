@@ -102,14 +102,14 @@ func publishPackage(pkgType string, name string) {
 		must.RunV("git", "tag", info.Permalink, info.Version+"^{}", "-f")
 		must.RunV("git", "push", "-f", remote, info.Permalink)
 
-		AddFilesToRelease(repo, info.Permalink, versionDir)
+		AddFilesToRelease(repo, info, info.Permalink, versionDir)
 	} else {
 		fmt.Println("Skipping publish package for permalink", info.Permalink)
 	}
 
 	// Create GitHub release for the exact version (v1.2.3) and attach assets
 	if info.IsTaggedRelease {
-		AddFilesToRelease(repo, info.Version, versionDir)
+		AddFilesToRelease(repo, info, info.Version, versionDir)
 	}
 }
 
@@ -181,24 +181,32 @@ func GeneratePluginFeed() error {
 
 // AddFilesToRelease uploads the files in the specified directory to a GitHub release.
 // If the release does not exist already, it will be created with empty release notes.
-func AddFilesToRelease(repo string, tag string, dir string) {
+func AddFilesToRelease(repo string, info GitMetadata, tag string, dir string) {
 	files, err := getReleaseAssets(dir)
 	mgx.Must(err)
 
 	if !releaseExists(repo, tag) {
-		// Mark canary releases as a draft
+		// Mark canary releases as a pre-release
 		draft := ""
 		if strings.HasPrefix(tag, "canary") {
 			draft = "-p"
 		}
 
-		// Create the GH release
-		must.Command("gh", "release", "create", "-R", repo, tag, "--notes=", draft).CollapseArgs().RunV()
-	}
+		// Create the GH release and upload the assets at the same time
+		// The release stays in draft until all assets are uploaded
+		must.Command("gh", "release", "create", "-R", repo, tag, "--generate-notes", draft).
+			Args(files...).CollapseArgs().RunV()
+	} else {
+		// We must have failed when creating the release last time, and someone kicked the build to retry
+		// Get the release back into the desired state (see gh release create above for what we want to look like)
 
-	// Upload the release assets and overwrite existing assets
-	must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
-		Args(files...).RunV()
+		// Upload the release assets and overwrite existing assets
+		must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
+			Args(files...).RunV()
+
+		// The release may still be stuck in draft from a previous failed upload while creating the release, make sure draft is cleared
+		must.Command("gh", "release", "edit", "--draft=false", "-R", repo, tag).RunV()
+	}
 }
 
 func getReleaseAssets(dir string) ([]string, error) {

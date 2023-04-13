@@ -17,6 +17,9 @@ import (
 var (
 	must = shx.CommandBuilder{StopOnError: true}
 
+	// DefaultGitHubClientVersion is the version of gh that is installed when it's not present
+	DefaultGitHubClientVersion = "2.27.0"
+
 	// DefaultKindVersion is the default version of KinD that is installed when it's not present
 	DefaultKindVersion = "v0.12.0"
 
@@ -66,7 +69,7 @@ func EnsureGitHubClient() {
 		DownloadOptions: downloads.DownloadOptions{
 			UrlTemplate: "https://github.com/cli/cli/releases/download/v{{.VERSION}}/gh_{{.VERSION}}_{{.GOOS}}_{{.GOARCH}}{{.EXT}}",
 			Name:        "gh",
-			Version:     "1.8.1",
+			Version:     DefaultGitHubClientVersion,
 			OsReplacement: map[string]string{
 				"darwin": "macOS",
 			},
