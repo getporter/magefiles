@@ -24,7 +24,7 @@ var (
 	DefaultKindVersion = "v0.12.0"
 
 	// DefaultStaticCheckVersion is the default version of StaticCheck that is installed when it's not present
-	DefaultStaticCheckVersion = "2022.1.2"
+	DefaultStaticCheckVersion = "2023.1.3"
 )
 
 // Fail if the go version doesn't match the specified constraint
