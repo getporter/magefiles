@@ -11,12 +11,9 @@ import (
 	"github.com/carolynvs/magex/pkg"
 	"github.com/carolynvs/magex/pkg/archive"
 	"github.com/carolynvs/magex/pkg/downloads"
-	"github.com/carolynvs/magex/shx"
 )
 
 var (
-	must = shx.CommandBuilder{StopOnError: true}
-
 	// DefaultGitHubClientVersion is the version of gh that is installed when it's not present
 	DefaultGitHubClientVersion = "2.27.0"
 

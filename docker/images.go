@@ -23,5 +23,5 @@ func ExtractRepoDigest(inspectOutput string) (string, error) {
 		}
 	}
 
-	return "", errors.New("No repository digests are associated with the image. Did you push it?")
+	return "", errors.New("no repository digests are associated with the image. Did you push it?")
 }

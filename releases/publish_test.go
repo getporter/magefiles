@@ -3,7 +3,6 @@ package releases
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,7 +15,7 @@ import (
 )
 
 func TestGetReleaseAssets(t *testing.T) {
-	tmp, err := ioutil.TempDir("", "magefiles")
+	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmp)
 
@@ -36,7 +35,7 @@ func TestGetReleaseAssets(t *testing.T) {
 	assert.Equal(t, wantFiles, gotFiles)
 
 	// Read the existing checksum file with stale contents, and ensure it was updated
-	gotChecksum, err := ioutil.ReadFile(filepath.Join(tmp, "mymixin-darwin-amd64.sha256sum"))
+	gotChecksum, err := os.ReadFile(filepath.Join(tmp, "mymixin-darwin-amd64.sha256sum"))
 	require.NoError(t, err)
 	wantCheckSum := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  mymixin-darwin-amd64"
 	assert.Equal(t, wantCheckSum, string(gotChecksum))
@@ -83,7 +82,7 @@ func TestAppendDataPath(t *testing.T) {
 }
 
 func TestGenerateMixinFeed(t *testing.T) {
-	tmp, err := ioutil.TempDir("", "magefiles")
+	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmp)
 
@@ -113,7 +112,7 @@ func TestGenerateMixinFeed(t *testing.T) {
 }
 
 func TestGeneratePluginFeed_PorterNotInstalled(t *testing.T) {
-	tmp, err := ioutil.TempDir("", "magefiles")
+	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmp)
 

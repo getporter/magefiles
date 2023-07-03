@@ -137,7 +137,7 @@ func publishPackageFeed(pkgType string, name string) {
 	}
 	remote := os.Getenv(PackagesRemote)
 	if remote == "" {
-		remote = fmt.Sprintf("https://github.com/getporter/packages.git")
+		remote = "https://github.com/getporter/packages.git"
 	}
 	must.RunV("git", "clone", "--depth=1", remote, packagesRepo)
 	configureGitBotIn(packagesRepo)

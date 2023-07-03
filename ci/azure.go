@@ -8,7 +8,7 @@ import (
 	"get.porter.sh/magefiles/tools"
 	"github.com/carolynvs/magex/pkg/gopath"
 
-	. "github.com/carolynvs/magex/ci"
+	"github.com/carolynvs/magex/ci"
 )
 
 // ConfigureAgent sets up a CI worker agent with mage and ensures
@@ -26,7 +26,7 @@ func ConfigureAgent() error {
 		return fmt.Errorf("could not mkdir -p %s: %w", gobin, err)
 	}
 
-	p, _ := DetectBuildProvider()
+	p, _ := ci.DetectBuildProvider()
 	log.Printf("Adding %s to the PATH\n", gobin)
 	return p.PrependPath(gobin)
 }
