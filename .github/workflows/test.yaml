@@ -19,11 +19,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
       - name: Configure Agent
         run: go run mage.go ConfigureAgent
+      - name: Vet
+        run: mage Vet
+      - name: Lint
+        run: mage Lint
       - name: Build
         run: mage Build
       - name: Test

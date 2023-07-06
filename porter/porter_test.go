@@ -1,7 +1,6 @@
 package porter
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +12,7 @@ import (
 )
 
 func TestEnsurePorter(t *testing.T) {
-	tmp, err := ioutil.TempDir("", "magefiles")
+	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmp)
 

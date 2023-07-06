@@ -1,7 +1,6 @@
 package porter
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +12,7 @@ import (
 
 func TestGetPorterHome(t *testing.T) {
 	t.Run("PORTER_HOME set", func(t *testing.T) {
-		tmpPorterHome, err := ioutil.TempDir("", "magefiles")
+		tmpPorterHome, err := os.MkdirTemp("", "magefiles")
 		require.NoError(t, err)
 		defer os.RemoveAll(tmpPorterHome)
 
@@ -25,7 +24,7 @@ func TestGetPorterHome(t *testing.T) {
 	})
 
 	t.Run("Default to HOME/.porter", func(t *testing.T) {
-		tmpUserHome, err := ioutil.TempDir("", "magefiles")
+		tmpUserHome, err := os.MkdirTemp("", "magefiles")
 		require.NoError(t, err)
 		defer os.RemoveAll(tmpUserHome)
 		tmpPorterHome := filepath.Join(tmpUserHome, ".porter")

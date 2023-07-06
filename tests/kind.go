@@ -5,7 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"html/template"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -69,17 +69,13 @@ func useCluster() bool {
 		}
 		os.Setenv("KUBECONFIG", currentKubeConfig)
 
-		if err := ioutil.WriteFile(Kubeconfig, []byte(contents), 0660); err != nil {
+		if err := os.WriteFile(Kubeconfig, []byte(contents), 0660); err != nil {
 			mgx.Must(fmt.Errorf("error writing %s: %w", Kubeconfig, err))
 		}
 		return true
 	}
 
 	return false
-}
-
-func setClusterNamespace(name string) {
-	must.RunE("kubectl", "config", "set-context", "--current", "--namespace", name)
 }
 
 // Create a KIND cluster named porter.
@@ -119,7 +115,7 @@ func CreateTestCluster() {
 	if err = kindCfgTmpl.Execute(&kindCfgContents, kindCfgData); err != nil {
 		mgx.Must(fmt.Errorf("could not render the kind.config template: %w", err))
 	}
-	if err = ioutil.WriteFile("kind.config.yaml", kindCfgContents.Bytes(), 0660); err != nil {
+	if err = os.WriteFile("kind.config.yaml", kindCfgContents.Bytes(), 0660); err != nil {
 		mgx.Must(fmt.Errorf("could not write kind config file: %w", err))
 	}
 	defer os.Remove("kind.config.yaml")
@@ -162,7 +158,7 @@ func EnsureKubectl() {
 	}
 	defer versionResp.Body.Close()
 
-	kubectlVersion, err := ioutil.ReadAll(versionResp.Body)
+	kubectlVersion, err := io.ReadAll(versionResp.Body)
 	if err != nil {
 		mgx.Must(fmt.Errorf("error reading response from %s: %w", versionURL, err))
 	}

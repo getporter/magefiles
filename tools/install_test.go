@@ -1,7 +1,6 @@
 package tools_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -15,7 +14,7 @@ import (
 )
 
 func TestEnsureKind(t *testing.T) {
-	tmp, err := ioutil.TempDir("", "magefiles")
+	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err, "Error creating temp directory")
 	defer os.RemoveAll(tmp)
 
@@ -38,7 +37,7 @@ func TestEnsureKind(t *testing.T) {
 }
 
 func TestEnsureStaticCheck(t *testing.T) {
-	tmp, err := ioutil.TempDir("", "magefiles")
+	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err, "Error creating temp directory")
 	defer os.RemoveAll(tmp)
 

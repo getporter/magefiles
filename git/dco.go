@@ -19,7 +19,7 @@ var prepareCommitMsg string
 func SetupDCO() error {
 	gotShell := xplat.DetectShell()
 	if gotShell == "powershell" || gotShell == "cmd" {
-		return fmt.Errorf("SetupDCO must be run from a shell that supports bash but %s was detected\n", gotShell)
+		return fmt.Errorf("setupDCO must be run from a shell that supports bash but %s was detected", gotShell)
 	}
 
 	pwd, err := os.Getwd()
