@@ -18,7 +18,7 @@ var (
 	DefaultGitHubClientVersion = "2.27.0"
 
 	// DefaultKindVersion is the default version of KinD that is installed when it's not present
-	DefaultKindVersion = "v0.12.0"
+	DefaultKindVersion = "v0.20.0"
 
 	// DefaultStaticCheckVersion is the default version of StaticCheck that is installed when it's not present
 	DefaultStaticCheckVersion = "2023.1.3"
