@@ -99,8 +99,13 @@ func CreateTestCluster() {
 			}
 		}
 	}
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		mgx.Must(fmt.Errorf("error retrieving the home directory of the current user %w", err))
+	}
+	kubeConfig := homeDir + "/.kube/config:" + filepath.Join(pwd(), Kubeconfig)
 
-	os.Setenv("KUBECONFIG", filepath.Join(pwd(), Kubeconfig))
+	os.Setenv("KUBECONFIG", kubeConfig)
 	kindCfgTmpl, err := template.New("kind.config.yaml").Parse(templateKindConfig)
 	if err != nil {
 		mgx.Must(fmt.Errorf("error parsing EnsureKind config template: %w", err))
@@ -127,6 +132,7 @@ func CreateTestCluster() {
 	kubectl("apply", "-f", "-").
 		Stdin(strings.NewReader(templateLocalRegistry)).
 		Run()
+	kubectl("config", "use-context", "kind-porter").Run()
 }
 
 // Delete the KIND cluster named porter.
