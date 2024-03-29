@@ -26,7 +26,7 @@ func getLDFLAGS(pkg string) string {
 func build(pkgName, cmd, outPath, goos, goarch string) error {
 	ldflags := getLDFLAGS(pkgName)
 
-	os.MkdirAll(filepath.Dir(outPath), 0770)
+	mgx.Must(os.MkdirAll(filepath.Dir(outPath), 0770))
 	outPath += fileExt(goos)
 	srcPath := "./cmd/" + cmd
 
@@ -88,5 +88,5 @@ func XBuildAll(pkg string, name string, binDir string) {
 
 	// Copy most recent build into bin/dev so that subsequent build steps can easily find it, not used for publishing
 	os.RemoveAll(filepath.Join(binDir, "dev"))
-	shx.Copy(filepath.Join(binDir, info.Version), filepath.Join(binDir, "dev"), shx.CopyRecursive)
+	mgx.Must(shx.Copy(filepath.Join(binDir, info.Version), filepath.Join(binDir, "dev"), shx.CopyRecursive))
 }

@@ -34,7 +34,7 @@ func (m Magefile) ConfigureAgent() {
 
 // Build the mixin
 func (m Magefile) Build() {
-	must.RunV("go", "mod", "tidy")
+	mgx.Must(must.RunV("go", "mod", "tidy"))
 	mgx.Must(releases.BuildAll(m.Pkg, m.MixinName, m.BinDir))
 }
 
@@ -50,7 +50,7 @@ func (m Magefile) TestUnit() {
 	if mg.Verbose() {
 		v = "-v"
 	}
-	must.Command("go", "test", v, "./pkg/...").CollapseArgs().RunV()
+	mgx.Must(must.Command("go", "test", v, "./pkg/...").CollapseArgs().RunV())
 }
 
 // Test runs a full suite of tests
@@ -59,7 +59,7 @@ func (m Magefile) Test() {
 
 	// Check that we can call `mixin version`
 	m.Build()
-	must.RunV(filepath.Join(m.BinDir, m.MixinName+xplat.FileExt()), "version")
+	mgx.Must(must.RunV(filepath.Join(m.BinDir, m.MixinName+xplat.FileExt()), "version"))
 }
 
 // Publish the mixin and its mixin feed
@@ -101,7 +101,7 @@ func (m Magefile) Install() {
 	porterHome := porter.GetPorterHome()
 	fmt.Printf("Installing the %s mixin into %s\n", m.MixinName, porterHome)
 
-	os.MkdirAll(filepath.Join(porterHome, "mixins", m.MixinName, "runtimes"), 0770)
+	mgx.Must(os.MkdirAll(filepath.Join(porterHome, "mixins", m.MixinName, "runtimes"), 0770))
 	mgx.Must(shx.Copy(filepath.Join(m.BinDir, m.MixinName+xplat.FileExt()), filepath.Join(porterHome, "mixins", m.MixinName)))
 	mgx.Must(shx.Copy(filepath.Join(m.BinDir, "runtimes", m.MixinName+"-runtime"+xplat.FileExt()), filepath.Join(porterHome, "mixins", m.MixinName, "runtimes")))
 }

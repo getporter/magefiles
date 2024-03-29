@@ -59,6 +59,29 @@ func TestEnsureStaticCheck(t *testing.T) {
 	assert.True(t, found, "staticcheck was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
 }
 
+func TestEnsureGolangCILint(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "magefiles")
+	require.NoError(t, err, "Error creating temp directory")
+	defer os.RemoveAll(tmp)
+
+	oldGoPath := os.Getenv("GOPATH")
+	defer os.Setenv("GOPATH", oldGoPath)
+	os.Setenv("GOPATH", tmp)
+
+	oldPath := os.Getenv("PATH")
+	defer os.Setenv("PATH", oldPath)
+	os.Setenv("PATH", tmp)
+
+	tools.EnsureGolangCILint()
+	xplat.PrependPath(gopath.GetGopathBin())
+
+	require.FileExists(t, filepath.Join(tmp, "bin", "golangci-lint"+xplat.FileExt()))
+
+	found, err := pkg.IsCommandAvailable("golangci-lint", "--version", tools.DefaultGolangCILintVersion)
+	require.NoError(t, err, "IsCommandAvailable failed")
+	assert.True(t, found, "golangci-lint was not available from its location in GOPATH/bin. PATH=%s", os.Getenv("PATH"))
+}
+
 func TestEnsureGitHubClient(t *testing.T) {
 	tmp, err := os.MkdirTemp("", "magefiles")
 	require.NoError(t, err, "Error creating temp directory")

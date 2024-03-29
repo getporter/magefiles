@@ -74,7 +74,7 @@ exec echo "$GITHUB_TOKEN"
 	pwd, _ := os.Getwd()
 	script := filepath.Join(pwd, askpass)
 
-	must.Command("git", "config", "core.askPass", script).In(dir).RunV()
+	mgx.Must(must.Command("git", "config", "core.askPass", script).In(dir).RunV())
 }
 
 func publishPackage(pkgType string, name string) {
@@ -99,8 +99,8 @@ func publishPackage(pkgType string, name string) {
 	// Create or update GitHub release for the permalink (canary/latest) with the version's binaries
 	if info.ShouldPublishPermalink() {
 		// Move the permalink tag. The existing release automatically points to the tag.
-		must.RunV("git", "tag", info.Permalink, info.Version+"^{}", "-f")
-		must.RunV("git", "push", "-f", remote, info.Permalink)
+		mgx.Must(must.RunV("git", "tag", info.Permalink, info.Version+"^{}", "-f"))
+		mgx.Must(must.RunV("git", "push", "-f", remote, info.Permalink))
 
 		AddFilesToRelease(repo, info.Permalink, versionDir)
 	} else {
@@ -139,14 +139,14 @@ func publishPackageFeed(pkgType string, name string) {
 	if remote == "" {
 		remote = "https://github.com/getporter/packages.git"
 	}
-	must.RunV("git", "clone", "--depth=1", remote, packagesRepo)
+	mgx.Must(must.RunV("git", "clone", "--depth=1", remote, packagesRepo))
 	configureGitBotIn(packagesRepo)
 
 	mgx.Must(generatePackageFeed(pkgType))
 
-	must.Command("git", "-c", "user.name='Porter Bot'", "-c", "user.email=bot@porter.sh", "commit", "--signoff", "-am", fmt.Sprintf("Add %s@%s to %s feed", name, info.Version, pkgType)).
-		In(packagesRepo).RunV()
-	must.Command("git", "push").In(packagesRepo).RunV()
+	mgx.Must(must.Command("git", "-c", "user.name='Porter Bot'", "-c", "user.email=bot@porter.sh", "commit", "--signoff", "-am", fmt.Sprintf("Add %s@%s to %s feed", name, info.Version, pkgType)).
+		In(packagesRepo).RunV())
+	mgx.Must(must.Command("git", "push").In(packagesRepo).RunV())
 }
 
 // Generate an updated mixin feed and publishes it.
@@ -194,18 +194,18 @@ func AddFilesToRelease(repo string, tag string, dir string) {
 
 		// Create the GH release and upload the assets at the same time
 		// The release stays in draft until all assets are uploaded
-		must.Command("gh", "release", "create", "-R", repo, tag, "--generate-notes", draft).
-			Args(files...).CollapseArgs().RunV()
+		mgx.Must(must.Command("gh", "release", "create", "-R", repo, tag, "--generate-notes", draft).
+			Args(files...).CollapseArgs().RunV())
 	} else {
 		// We must have failed when creating the release last time, and someone kicked the build to retry
 		// Get the release back into the desired state (see gh release create above for what we want to look like)
 
 		// Upload the release assets and overwrite existing assets
-		must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
-			Args(files...).RunV()
+		mgx.Must(must.Command("gh", "release", "upload", "--clobber", "-R", repo, tag).
+			Args(files...).RunV())
 
 		// The release may still be stuck in draft from a previous failed upload while creating the release, make sure draft is cleared
-		must.Command("gh", "release", "edit", "--draft=false", "-R", repo, tag).RunV()
+		mgx.Must(must.Command("gh", "release", "edit", "--draft=false", "-R", repo, tag).RunV())
 	}
 }
 

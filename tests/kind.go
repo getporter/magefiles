@@ -125,21 +125,21 @@ func CreateTestCluster() {
 	}
 	defer os.Remove("kind.config.yaml")
 
-	must.Command("kind", "create", "cluster", "--name", getKindClusterName(), "--config", "kind.config.yaml").
-		Env("KIND_EXPERIMENTAL_DOCKER_NETWORK=" + docker.DefaultNetworkName).Run()
+	mgx.Must(must.Command("kind", "create", "cluster", "--name", getKindClusterName(), "--config", "kind.config.yaml").
+		Env("KIND_EXPERIMENTAL_DOCKER_NETWORK=" + docker.DefaultNetworkName).Run())
 
 	// Document the local registry
-	kubectl("apply", "-f", "-").
+	mgx.Must(kubectl("apply", "-f", "-").
 		Stdin(strings.NewReader(templateLocalRegistry)).
-		Run()
-	kubectl("config", "use-context", "kind-porter").Run()
+		Run())
+	mgx.Must(kubectl("config", "use-context", "kind-porter").Run())
 }
 
 // Delete the KIND cluster named porter.
 func DeleteTestCluster() {
 	mg.Deps(tools.EnsureKind)
 
-	must.RunE("kind", "delete", "cluster", "--name", getKindClusterName())
+	mgx.Must(must.RunE("kind", "delete", "cluster", "--name", getKindClusterName()))
 }
 
 func kubectl(args ...string) shx.PreparedCommand {
