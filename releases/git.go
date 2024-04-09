@@ -63,8 +63,12 @@ func LoadMetadata() GitMetadata {
 
 // Get the hash of the current commit
 func getCommit() string {
-	commit, _ := must.OutputS("git", "rev-parse", "--short", "HEAD")
-	return commit
+	commit, _ := shx.OutputS("git", "rev-parse", "--short", "HEAD")
+	if commit != "" {
+		return commit
+	}
+
+	return "0000000"
 }
 
 // Get a description of the commit, e.g. v0.30.1 (latest) or v0.30.1-32-gfe72ff73 (canary)
@@ -80,7 +84,10 @@ func getVersion() string {
 
 // Return either "main", "v*", or "dev" for all other branches.
 func getBranchName() string {
-	gitOutput, _ := must.OutputS("git", "for-each-ref", "--contains", "HEAD", "--format=%(refname)")
+	gitOutput, _ := shx.OutputS("git", "for-each-ref", "--contains", "HEAD", "--format=%(refname)")
+	if gitOutput == "" {
+		return "dev"
+	}
 	refs := strings.Split(gitOutput, "\n")
 
 	return pickBranchName(refs)
