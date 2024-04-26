@@ -31,7 +31,7 @@ func EnsurePorter() {
 func EnsurePorterAt(version string) {
 	home := GetPorterHome()
 	runtimesDir := filepath.Join(home, "runtimes")
-	os.MkdirAll(runtimesDir, 0770)
+	mgx.Must(os.MkdirAll(runtimesDir, 0770))
 
 	var forceDownloadRuntime bool
 

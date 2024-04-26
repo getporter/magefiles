@@ -1,6 +1,7 @@
 package porter
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -30,7 +31,10 @@ func UseBinForPorterHome() {
 	// use bin as PORTER_HOME
 	wd, _ := os.Getwd()
 	home := filepath.Join(wd, "bin")
-	os.Mkdir(home, 0770)
+	err := os.Mkdir(home, 0770)
+	if err != nil && !os.IsExist(err) {
+		panic(fmt.Sprintf("Unable to make directory %s for PORTER_HOME", home))
+	}
 	UsePorterHome(home)
 }
 

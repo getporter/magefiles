@@ -103,7 +103,9 @@ func TestGenerateMixinFeed(t *testing.T) {
 	origDir, err := os.Getwd()
 	require.NoError(t, err)
 	require.NoError(t, os.Chdir(tmp))
-	defer os.Chdir(origDir)
+	defer func() {
+		require.NoError(t, os.Chdir(origDir))
+	}()
 
 	err = GenerateMixinFeed()
 	require.NoError(t, err)
@@ -131,7 +133,9 @@ func TestGeneratePluginFeed_PorterNotInstalled(t *testing.T) {
 	origDir, err := os.Getwd()
 	require.NoError(t, err)
 	require.NoError(t, os.Chdir(tmp))
-	defer os.Chdir(origDir)
+	defer func() {
+		require.NoError(t, os.Chdir(origDir))
+	}()
 
 	err = GeneratePluginFeed()
 	require.Errorf(t, err, "farts", "GeneratePluginFeed should fail when porter is not in the bin")

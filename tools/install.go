@@ -22,6 +22,9 @@ var (
 
 	// DefaultStaticCheckVersion is the default version of StaticCheck that is installed when it's not present
 	DefaultStaticCheckVersion = "2023.1.6"
+
+	// DefaultGolangCILintVersion is the default version of golangci-lint that is installed when it's not present
+	DefaultGolangCILintVersion = "1.57.2"
 )
 
 // Fail if the go version doesn't match the specified constraint
@@ -127,6 +130,34 @@ func EnsureStaticCheckAt(version string) {
 			"windows": ".tar.gz",
 		},
 		TargetFileTemplate: "staticcheck/staticcheck{{.EXT}}",
+	}
+	err := archive.DownloadToGopathBin(opts)
+	mgx.Must(err)
+}
+
+// Install golangci-lint
+func EnsureGolangCILint() {
+	EnsureGolangCILintAt(DefaultGolangCILintVersion)
+}
+
+// Install golangci-lint at the specified version
+func EnsureGolangCILintAt(version string) {
+	if ok, _ := pkg.IsCommandAvailable("golangci-lint", "--version", version); ok {
+		return
+	}
+
+	opts := archive.DownloadArchiveOptions{
+		DownloadOptions: downloads.DownloadOptions{
+			UrlTemplate: "https://github.com/golangci/golangci-lint/releases/download/v{{.VERSION}}/golangci-lint-{{.VERSION}}-{{.GOOS}}-{{.GOARCH}}.tar.gz",
+			Name:        "golangci-lint",
+			Version:     version,
+		},
+		ArchiveExtensions: map[string]string{
+			"linux":   ".tar.gz",
+			"darwin":  ".tar.gz",
+			"windows": ".tar.gz",
+		},
+		TargetFileTemplate: "golangci-lint-{{.VERSION}}-{{.GOOS}}-{{.GOARCH}}/golangci-lint{{.EXT}}",
 	}
 	err := archive.DownloadToGopathBin(opts)
 	mgx.Must(err)
