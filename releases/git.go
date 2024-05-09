@@ -97,14 +97,14 @@ func getBranchName() string {
 func pickBranchName(refs []string) string {
 	var branch string
 
-	if b, ok := os.LookupEnv("SYSTEM_PULLREQUEST_SOURCEBRANCH"); ok {
+	if b, ok := os.LookupEnv("GITHUB_HEAD_REF"); ok {
 		// pull request
 		branch = b
-	} else if b, ok := os.LookupEnv("BUILD_SOURCEBRANCH"); ok && !strings.HasPrefix(b, "refs/tags/") {
+	} else if b, ok := os.LookupEnv("GITHUB_REF"); ok && !strings.HasPrefix(b, "refs/tags/") {
 		// branch build
-		// BUILD_SOURCEBRANCHNAME has the short name, e.g. main. BUILD_SOURCEBRANCH has the full name, e.g. refs/heads/main
+		// GITHUB_REF_NAME has the short name, e.g. main. GITHUB_REF has the full name, e.g. refs/heads/main
 		// They are populated for both tags and branches
-		branch = os.Getenv("BUILD_SOURCEBRANCHNAME")
+		branch = os.Getenv("GITHUB_REF_NAME")
 	} else {
 		// tag build
 		// Detect if this was a tag on main or a release
@@ -138,7 +138,7 @@ func pickBranchName(refs []string) string {
 
 func getPermalink() (string, bool) {
 	// Use dev for pull requests
-	if _, pr := os.LookupEnv("SYSTEM_PULLREQUEST_SOURCEBRANCH"); pr {
+	if _, pr := os.LookupEnv("GITHUB_HEAD_REF"); pr {
 		return "dev", false
 	}
 

@@ -9,9 +9,9 @@ import (
 
 func TestPickBranchName(t *testing.T) {
 	// These aren't set locally but are set on a CI run
-	os.Unsetenv("SYSTEM_PULLREQUEST_SOURCEBRANCH")
-	os.Unsetenv("BUILD_SOURCEBRANCHNAME")
-	os.Unsetenv("BUILD_SOURCEBRANCH")
+	os.Unsetenv("GITHUB_HEAD_REF")
+	os.Unsetenv("GITHUB_REF_NAME")
+	os.Unsetenv("GITHUB_REF")
 
 	t.Run("origin/main", func(t *testing.T) {
 		refs := []string{
@@ -36,8 +36,8 @@ func TestPickBranchName(t *testing.T) {
 	})
 
 	t.Run("pull request", func(t *testing.T) {
-		os.Setenv("SYSTEM_PULLREQUEST_SOURCEBRANCH", "patch-1")
-		defer os.Unsetenv("SYSTEM_PULLREQUEST_SOURCEBRANCH")
+		os.Setenv("GITHUB_HEAD_REF", "patch-1")
+		defer os.Unsetenv("GITHUB_HEAD_REF")
 
 		refs := []string{
 			"refs/remotes/origin/foo",
@@ -48,10 +48,10 @@ func TestPickBranchName(t *testing.T) {
 	})
 
 	t.Run("branch build", func(t *testing.T) {
-		os.Setenv("BUILD_SOURCEBRANCHNAME", "foo")
-		os.Setenv("BUILD_SOURCEBRANCH", "refs/heads/foo")
-		defer os.Unsetenv("BUILD_SOURCEBRANCHNAME")
-		defer os.Unsetenv("BUILD_SOURCEBRANCH")
+		os.Setenv("GITHUB_REF_NAME", "foo")
+		os.Setenv("GITHUB_REF", "refs/heads/foo")
+		defer os.Unsetenv("GITHUB_REF_NAME")
+		defer os.Unsetenv("GITHUB_REF")
 
 		refs := []string{
 			"refs/remotes/origin/foo",
@@ -62,10 +62,10 @@ func TestPickBranchName(t *testing.T) {
 	})
 
 	t.Run("tagged release on v1", func(t *testing.T) {
-		os.Setenv("BUILD_SOURCEBRANCHNAME", "v1.0.0-alpha.1")
-		os.Setenv("BUILD_SOURCEBRANCH", "refs/tags/v1.0.0-alpha.1")
-		defer os.Unsetenv("BUILD_SOURCEBRANCHNAME")
-		defer os.Unsetenv("BUILD_SOURCEBRANCH")
+		os.Setenv("GITHUB_REF_NAME", "v1.0.0-alpha.1")
+		os.Setenv("GITHUB_REF", "refs/tags/v1.0.0-alpha.1")
+		defer os.Unsetenv("GITHUB_REF_NAME")
+		defer os.Unsetenv("GITHUB_REF")
 
 		refs := []string{
 			"refs/heads/release/v1",
@@ -77,10 +77,10 @@ func TestPickBranchName(t *testing.T) {
 	})
 
 	t.Run("tagged release on main", func(t *testing.T) {
-		os.Setenv("BUILD_SOURCEBRANCHNAME", "v0.38.3")
-		os.Setenv("BUILD_SOURCEBRANCH", "refs/tags/v0.38.3")
-		defer os.Unsetenv("BUILD_SOURCEBRANCHNAME")
-		defer os.Unsetenv("BUILD_SOURCEBRANCH")
+		os.Setenv("GITHUB_REF_NAME", "v0.38.3")
+		os.Setenv("GITHUB_REF", "refs/tags/v0.38.3")
+		defer os.Unsetenv("GITHUB_REF_NAME")
+		defer os.Unsetenv("GITHUB_REF")
 
 		refs := []string{
 			"refs/heads/release/v1",
