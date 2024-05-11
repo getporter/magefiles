@@ -97,7 +97,7 @@ func getBranchName() string {
 func pickBranchName(refs []string) string {
 	var branch string
 
-	if b, ok := os.LookupEnv("GITHUB_HEAD_REF"); ok {
+	if b, ok := os.LookupEnv("GITHUB_HEAD_REF"); ok && b != "" {
 		// pull request
 		branch = b
 	} else if b, ok := os.LookupEnv("GITHUB_REF"); ok && !strings.HasPrefix(b, "refs/tags/") {
@@ -138,7 +138,7 @@ func pickBranchName(refs []string) string {
 
 func getPermalink() (string, bool) {
 	// Use dev for pull requests
-	if _, pr := os.LookupEnv("GITHUB_HEAD_REF"); pr {
+	if ref, ok := os.LookupEnv("GITHUB_HEAD_REF"); ok && ref != "" {
 		return "dev", false
 	}
 
