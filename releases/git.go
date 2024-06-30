@@ -30,9 +30,6 @@ type GitMetadata struct {
 
 	// IsTaggedRelease indicates if the build is for a versioned tag
 	IsTaggedRelease bool
-
-	// Repository is the owner+name of the current repository
-	Repository string
 }
 
 func (m GitMetadata) ShouldPublishPermalink() bool {
@@ -44,9 +41,8 @@ func (m GitMetadata) ShouldPublishPermalink() bool {
 func LoadMetadata() GitMetadata {
 	loadMetadata.Do(func() {
 		gitMetadata = GitMetadata{
-			Version:    getVersion(),
-			Commit:     getCommit(),
-			Repository: getRepository(),
+			Version: getVersion(),
+			Commit:  getCommit(),
 		}
 
 		gitMetadata.Permalink, gitMetadata.IsTaggedRelease = getPermalink()
@@ -55,16 +51,12 @@ func LoadMetadata() GitMetadata {
 		log.Println("Permalink:", gitMetadata.Permalink)
 		log.Println("Version:", gitMetadata.Version)
 		log.Println("Commit:", gitMetadata.Commit)
-		log.Println("Repository:", gitMetadata.Repository)
 	})
 
-	// Workaround to avoid writing to GITHUB_ENV when building the Homebrew formula.
-	if gitMetadata.Repository != "Homebrew/homebrew-core" {
-		// Save the metadata as environment variables to use later in the CI pipeline
-		p, _ := ci.DetectBuildProvider()
-		mgx.Must(p.SetEnv("PERMALINK", gitMetadata.Permalink))
-		mgx.Must(p.SetEnv("VERSION", gitMetadata.Version))
-	}
+	// Save the metadata as environment variables to use later in the CI pipeline
+	p, _ := ci.DetectBuildProvider()
+	mgx.Must(p.SetEnv("PERMALINK", gitMetadata.Permalink))
+	mgx.Must(p.SetEnv("VERSION", gitMetadata.Version))
 
 	return gitMetadata
 }
@@ -169,13 +161,4 @@ func getPermalink() (string, bool) {
 	default:
 		return fmt.Sprintf("%s-%s", permalinkPrefix, strings.TrimPrefix(branch, "release/")), taggedRelease
 	}
-}
-
-func getRepository() string {
-	repository, ok := os.LookupEnv("GITHUB_REPOSITORY")
-	if !ok {
-		repository = "getporter/porter"
-	}
-
-	return repository
 }
