@@ -4,9 +4,9 @@ go 1.21
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
-	github.com/carolynvs/magex v0.9.0
 	github.com/magefile/mage v1.15.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.2
+	github.com/uwu-tools/magex v0.10.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
@@ -25,5 +25,5 @@ require (
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
-	gopkg.in/yaml.v3 v3.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

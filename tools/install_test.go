@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"get.porter.sh/magefiles/tools"
-	"github.com/carolynvs/magex/pkg"
-	"github.com/carolynvs/magex/pkg/gopath"
-	"github.com/carolynvs/magex/xplat"
+	"github.com/uwu-tools/magex/pkg"
+	"github.com/uwu-tools/magex/pkg/gopath"
+	"github.com/uwu-tools/magex/xplat"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

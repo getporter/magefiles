@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"get.porter.sh/magefiles/tools"
-	"github.com/carolynvs/magex/pkg/gopath"
+	"github.com/uwu-tools/magex/pkg/gopath"
 
-	"github.com/carolynvs/magex/ci"
+	"github.com/uwu-tools/magex/ci"
 )
 
 // ConfigureAgent sets up a CI worker agent with mage and ensures

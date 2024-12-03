@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/carolynvs/magex/shx"
+	"github.com/uwu-tools/magex/shx"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )

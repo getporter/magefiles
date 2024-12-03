@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/carolynvs/magex/mgx"
-	"github.com/carolynvs/magex/pkg"
-	"github.com/carolynvs/magex/pkg/downloads"
-	"github.com/carolynvs/magex/shx"
-	"github.com/carolynvs/magex/xplat"
+	"github.com/uwu-tools/magex/mgx"
+	"github.com/uwu-tools/magex/pkg"
+	"github.com/uwu-tools/magex/pkg/downloads"
+	"github.com/uwu-tools/magex/shx"
+	"github.com/uwu-tools/magex/xplat"
 )
 
 var (

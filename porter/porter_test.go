@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/carolynvs/magex/pkg"
-	"github.com/carolynvs/magex/xplat"
+	"github.com/uwu-tools/magex/pkg"
+	"github.com/uwu-tools/magex/xplat"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
