@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/carolynvs/magex/mgx"
-	"github.com/carolynvs/magex/pkg"
-	"github.com/carolynvs/magex/pkg/archive"
-	"github.com/carolynvs/magex/pkg/downloads"
+	"github.com/uwu-tools/magex/mgx"
+	"github.com/uwu-tools/magex/pkg"
+	"github.com/uwu-tools/magex/pkg/archive"
+	"github.com/uwu-tools/magex/pkg/downloads"
 )
 
 var (

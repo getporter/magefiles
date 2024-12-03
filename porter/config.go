@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/carolynvs/magex/xplat"
+	"github.com/uwu-tools/magex/xplat"
 )
 
 var (
