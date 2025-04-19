@@ -1,0 +1,3 @@
+# This file defines who is required to review pull requests
+# The porter/maintainers team must review all changes
+*   @getporter/maintainers
