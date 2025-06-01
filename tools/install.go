@@ -21,7 +21,7 @@ var (
 	DefaultKindVersion = "v0.20.0"
 
 	// DefaultStaticCheckVersion is the default version of StaticCheck that is installed when it's not present
-	DefaultStaticCheckVersion = "2023.1.6"
+	DefaultStaticCheckVersion = "2025.1.1"
 
 	// DefaultGolangCILintVersion is the default version of golangci-lint that is installed when it's not present
 	DefaultGolangCILintVersion = "1.64.8"
