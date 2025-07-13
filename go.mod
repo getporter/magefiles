@@ -9,7 +9,7 @@ require (
 	github.com/magefile/mage v1.15.0
 	github.com/stretchr/testify v1.10.0
 	github.com/uwu-tools/magex v0.10.1
-	golang.org/x/sync v0.15.0
+	golang.org/x/sync v0.16.0
 )
 
 require (
