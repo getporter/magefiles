@@ -15,7 +15,7 @@ import (
 
 var (
 	// DefaultPorterVersion is the default version of Porter that is installed when it's not present
-	DefaultPorterVersion = "v1.0.16"
+	DefaultPorterVersion = "v1.3.0"
 )
 
 // Install the default version of porter, if porter isn't already installed
