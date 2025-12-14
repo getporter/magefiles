@@ -19,7 +19,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
