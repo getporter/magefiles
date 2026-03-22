@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"get.porter.sh/magefiles/tools"
+	"github.com/magefile/mage/mg"
 	"github.com/uwu-tools/magex/mgx"
 	"github.com/uwu-tools/magex/shx"
-	"github.com/magefile/mage/mg"
 )
 
 var must = shx.CommandBuilder{StopOnError: true}
@@ -69,7 +69,7 @@ func configureGitBotIn(dir string) {
 	contents := `#!/bin/sh
 exec echo "$GITHUB_TOKEN"
 `
-	mgx.Must(os.WriteFile(askpass, []byte(contents), 0770))
+	mgx.Must(os.WriteFile(askpass, []byte(contents), 0o770))
 
 	pwd, _ := os.Getwd()
 	script := filepath.Join(pwd, askpass)
@@ -126,7 +126,7 @@ func PublishPlugin(plugin string) {
 func publishPackageFeed(pkgType string, name string) {
 	info := LoadMetadata()
 
-	if !(info.Permalink == "canary" || info.IsTaggedRelease) {
+	if info.Permalink != "canary" && !info.IsTaggedRelease {
 		fmt.Println("Skipping publish package feed for permalink", info.Permalink)
 		return
 	}
@@ -162,7 +162,7 @@ func PublishPluginFeed(plugin string) {
 func generatePackageFeed(pkgType string) error {
 	pkgDir := pkgType + "s"
 	feedFile := filepath.Join(packagesRepo, pkgDir, "atom.xml")
-	if err := os.MkdirAll(filepath.Dir(feedFile), 0770); err != nil {
+	if err := os.MkdirAll(filepath.Dir(feedFile), 0o770); err != nil {
 		return err
 	}
 

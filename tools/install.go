@@ -24,7 +24,7 @@ var (
 	DefaultStaticCheckVersion = "2023.1.6"
 
 	// DefaultGolangCILintVersion is the default version of golangci-lint that is installed when it's not present
-	DefaultGolangCILintVersion = "1.64.8"
+	DefaultGolangCILintVersion = "2.11.3"
 )
 
 // Fail if the go version doesn't match the specified constraint
