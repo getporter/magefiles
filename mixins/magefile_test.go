@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInstall(t *testing.T) {
+func TestInstallMixin(t *testing.T) {
 	magefile := NewMagefile("github.com/mymixin/test-mixin", "testmixin", "testdata/bin/mixins/testmixin")
 
 	// Change the porter home to a safe place for the test to write to
